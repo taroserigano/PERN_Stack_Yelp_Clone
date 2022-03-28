@@ -15,9 +15,11 @@ app.get("/api/v1/restaurants", async (req, res) => {
   try {
     //const results = await db.query("select * from restaurants");
     const restaurantRatingsData = await db.query(
+      //TRUNC rounds down to decimal .ex 1.49 -> 1.4 
       "select * from restaurants left join (select restaurant_id, COUNT(*), TRUNC(AVG(rating),1) as average_rating from reviews group by restaurant_id) reviews on restaurants.id = reviews.restaurant_id;"
     );
-
+    
+    //TO DO
     res.status(200).json({
       status: "success",
       results: restaurantRatingsData.rows.length,
@@ -30,7 +32,7 @@ app.get("/api/v1/restaurants", async (req, res) => {
   }
 });
 
-//Get a Restaurant
+//Get a Restaurant by ID with Review
 app.get("/api/v1/restaurants/:id", async (req, res) => {
   console.log(req.params.id);
 
@@ -40,7 +42,8 @@ app.get("/api/v1/restaurants/:id", async (req, res) => {
       [req.params.id]
     );
     // select * from restaurants wehre id = req.params.id
-
+    
+    // get Review 
     const reviews = await db.query(
       "select * from reviews where restaurant_id = $1",
       [req.params.id]
@@ -60,7 +63,6 @@ app.get("/api/v1/restaurants/:id", async (req, res) => {
 });
 
 // Create a Restaurant
-
 app.post("/api/v1/restaurants", async (req, res) => {
   console.log(req.body);
 
